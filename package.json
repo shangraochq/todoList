@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "npm install && node ./bin/www",
+    "start": "npm install && node --max-old-space-size=380 ./bin/www",
     "build": "cd ./clientApp && npm install && npm run build",
     "pull": "git pull origin master",
     "publish": "npm run pull && npm run build && npm run start",
