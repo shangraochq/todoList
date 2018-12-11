@@ -12,5 +12,5 @@ module.exports = function (req, res, next) {
     // } else {
     //     res.render('home', {name: '陌生人', title: 'home'});
     // }
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+    res.sendFile(path.join(__dirname, '../clientApp/dist/index.html'));
 }
