@@ -6,7 +6,7 @@
     "start": "npm install && node ./bin/www",
     "build": "cd ./clientApp && npm install && npm run build",
     "pull": "git pull origin master",
-    "publish": "npm run pull && npm run build && cd ../ && npm run start",
+    "publish": "npm run pull && npm run build && npm run start",
     "restart": "node ./bin/www"
   },
   "dependencies": {
