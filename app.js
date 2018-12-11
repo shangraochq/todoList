@@ -30,7 +30,7 @@ app.use(session({
 }));
 // app.use(csurf());
 app.use(compression());
-app.use(express.static(path.join(__dirname, './client/dist')));
+app.use(express.static(path.join(__dirname, './clientApp/dist')));
 app.use(messages);
 
 app.use('/app', home);
