@@ -1,13 +1,13 @@
 import axios from 'axios';
 
 
-const STATUS_TIPS_TEXT_MAP = {
+const STATUS_TIPS_TEXT_MAP: any = {
     500: '网络连接错误，请稍后重试',
     504: '请求超时，请稍后重试',
 };
 // http response 拦截器
 axios.interceptors.response.use(
-    (response) => {
+    (response: any) => {
         const { data } = response;
         const { isSilent, isSkipDefaultHandler } = response.config;
         const { retCode, retDesc } = data;
