@@ -19,7 +19,6 @@
     "express-session": "*",
     "csurf": "*",
     "compression": "*",
-    "bcryptjs": "*",
-    "mongodb": "*"
+    "bcryptjs": "*"
   }
 }
