@@ -39,6 +39,8 @@ app.post('/ajax/addTodo', todo.addToDo);
 app.get('/ajax/getToDoList', todo.getToDoList);
 app.post('/ajax/register', register.submit);
 app.post('/ajax/login', login.submit);
+app.post('/ajax/editContent', todo.editToDo);
+app.post('/ajax/addToCompletedOrBack', todo.addToCompletedOrBack);
 app.get('/logout', login.logout);
 app.get('/api/user/:userName', api.user);
 
@@ -53,10 +55,10 @@ app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
+  console.log(err.message);
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.end();
 });
 
 module.exports = app;

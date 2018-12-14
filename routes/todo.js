@@ -24,8 +24,10 @@ exports.addToDo = function (req, res, next) {
         content,
         startTime,
         endTime,
+        collectionName,
         user: req.session.uid,
-        id: new Date().getTime()
+        id: new Date().getTime(),
+        isCompleted: false,
     }
     db.__insertOne(collectionName, todo, function (err, result) {
         if (err) {
@@ -37,12 +39,35 @@ exports.addToDo = function (req, res, next) {
     })
 }
 
+exports.editToDo = function (req, res, next) {
+    const content = req.body.content;
+    const id = req.body.id;
+    const collectionName = getCollectionName(req.body.type);
+    db.__updateOne(collectionName, { id }, { $set: {content} }, function (err, result) {
+        if (err) {
+            return next(err);
+        }
+        res.json({ retCode: 200});
+    })
+}
+
 exports.getToDoList = function (req, res, next) {
     const type = req.query.type;
     const currentTime = new Date().getTime();
-    let queryObj = {
-        "user": req.session.uid
-    };
+    let queryObj = null;
+    if (type === 'completed') {
+        queryObj = {
+            "user": req.session.uid,
+            "isCompleted": true
+        };
+    } else {
+        queryObj = {
+            "user": req.session.uid,
+            "isCompleted": {
+                $ne: true
+            }
+        };
+    }
     if (type === 'today' || type === 'tomorrow') {
         collectionName = 'datedTodo';
         if (type === 'today') {
@@ -68,4 +93,56 @@ exports.getToDoList = function (req, res, next) {
             todoList: result || []
         }})
     })
+}
+
+exports.addToCompletedOrBack = function (req, res, next) {
+    const id = req.body.id;
+    const from = req.body.from;
+    const collectionName = getCollectionName(from);
+    if (from === 'completed') {
+        db.__find(collectionName, {id}, (err, result) => {
+            if (err) {
+                return next(err);
+            }
+            db.__updateOne(result[0].collectionName, {id}, { $set: {isCompleted: false} }, function (err, result) {
+                if (err) {
+                    return next(err);
+                }
+                db.__DeleteOne(collectionName, {id}, function (err) {
+                    if (err) {
+                        return next(err);
+                    }
+                    res.json({ retCode: 200, data: {}});
+                })
+            })
+        })
+    } else {
+        db.__updateOne(collectionName, {id}, { $set: {isCompleted: true} }, function (err, result) {
+            if (err) {
+                return next(err);
+            }
+            db.__find(collectionName, {id}, (err, result) => {
+                if (err) {
+                    return next(err);
+                }
+                db.__insertOne('completedTodo', result[0], function (err, result) {
+                    if (err) {
+                        return next(err);
+                    }
+                    res.json({
+                        retCode: 200,
+                        data: {
+                        }
+                    });
+                })
+            })
+        })
+    }
+}
+
+function getCollectionName(type) {
+    if (type === 'today' || type === 'tomorrow') {
+        return 'datedTodo';
+    }
+    return type + 'Todo';
 }

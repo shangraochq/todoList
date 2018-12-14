@@ -10,6 +10,8 @@
                 <p :class="type === 'tomorrow' ? 'active' : ''" @click="changeType('tomorrow')">明日待办</p>
                 <p :class="type === 'next' ? 'active' : ''" @click="changeType('next')">下一步行动</p>
                 <p :class="type === 'future' ? 'active' : ''" @click="changeType('future')">将来/也许</p>
+                <p :class="type === 'completed' ? 'active' : ''" @click="changeType('completed')">已完成</p>
+                <p :class="type === 'garbage' ? 'active' : ''" @click="changeType('garbage')">垃圾箱</p>
             </div>
             <div class="content">
                 <input v-on:keyup.enter="addTodo"
@@ -19,11 +21,25 @@
                 >
                 <div class="todolist">
                     <p v-for="todo in todoList" :key="todo.id" class="todo">
-                        {{todo.content}}
+                        <span class="checkbox" @click="addToCompleted(todo)"></span>
+                        <span @click="edit(todo)"
+                            class="item">
+                            {{todo.content}}
+                        </span>
                     </p>
                 </div>
             </div>
         </div>
+        <el-dialog
+            title="编辑"
+            :visible.sync="dialogVisible"
+            width="60%">
+            <el-input v-model="dialogContent" placeholder="请输入内容"></el-input>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="editContent">确 定</el-button>
+            </span>
+        </el-dialog>
   </div>
 </template>
 
@@ -38,6 +54,9 @@ export default class Home extends Vue {
     content = "";
     todoList: any[] = [];
     type = "today";
+    dialogVisible = false;
+    dialogContent = "";
+    editTodo: any;
     mounted () {
         axios.get('/ajax/getUserInfo')
         .then((data: any) => {
@@ -80,6 +99,37 @@ export default class Home extends Vue {
         }
         this.type = type;
         this.getTodoList();
+    }
+    edit(todo) {
+        this.dialogContent = todo.content || '';
+        this.editTodo = todo;
+        this.dialogVisible = true;
+    }
+    editContent() {
+        if (!this.dialogContent.trim()) {
+            this.$message.error('请填写内容');
+            return;
+        }
+        axios.post('/ajax/editContent', {
+            id: this.editTodo.id,
+            content: this.dialogContent,
+            type: this.type,
+        })
+        .then(data => {
+            this.dialogVisible = false;
+            this.editTodo.content = this.dialogContent;
+        })
+    }
+    addToCompleted(todo) {
+        axios.post('/ajax/addToCompletedOrBack', {
+            id: todo.id,
+            from: this.type,
+        })
+        .then(data => {
+            this.todoList = this.todoList.filter((item) => {
+                return item.id !== todo.id;
+            });
+        })
     }
 }
 </script>
@@ -156,5 +206,18 @@ export default class Home extends Vue {
     }
     .todo:hover {
         background-color: #eee;
+    }
+    .item:hover {
+        cursor: pointer;
+    }
+    .checkbox {
+        width: 14px;
+        height: 14px;
+        background-color: #eee;
+        display: inline-block;
+        border: 2px solid #ddd;
+        cursor: pointer;
+        position: relative;
+        top: 4px;
     }
 </style>

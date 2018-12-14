@@ -90,6 +90,21 @@ function __DeleteMany(collectionName, json, callback) {
     });
 }
 
+function __DeleteOne(collectionName, json, callback) {
+    __connectDB(function (err, db) {
+        assert.equal(err, null)
+        //删除
+        db.collection(collectionName).deleteOne(
+            json,
+            function (err, results) {
+                assert.equal(err, null)
+                callback(err, results);
+                db.close(); //关闭数据库
+            }
+        );
+    });
+}
+
 
 /**
  * 修改数据
@@ -103,6 +118,29 @@ function __updateMany(collectionName, json1, json2, callback) {
     __connectDB(function (err, db) {
         assert.equal(err, null)
         db.collection(collectionName).updateMany(
+            json1,
+            json2,
+            function (err, results) {
+                assert.equal(err, null)
+                callback(err, results)
+                db.close()
+            }
+        )
+    })
+}
+
+/**
+ * 修改数据
+ * @param {*} collectionName 集合名
+ * @param {*} json1 查询的对象
+ * @param {*} json2 修改
+ * @param {*} callback 回调函数
+ */
+
+function __updateOne(collectionName, json1, json2, callback) {
+    __connectDB(function (err, db) {
+        assert.equal(err, null)
+        db.collection(collectionName).updateOne(
             json1,
             json2,
             function (err, results) {
@@ -188,6 +226,8 @@ module.exports = {
     __insertOne,
     __find,
     __DeleteMany,
+    __DeleteOne,
+    __updateOne,
     __updateMany,
     __getCount,
     __findByPage
