@@ -100,7 +100,7 @@ export default class Home extends Vue {
         this.type = type;
         this.getTodoList();
     }
-    edit(todo) {
+    edit(todo: any) {
         this.dialogContent = todo.content || '';
         this.editTodo = todo;
         this.dialogVisible = true;
@@ -120,7 +120,7 @@ export default class Home extends Vue {
             this.editTodo.content = this.dialogContent;
         })
     }
-    addToCompleted(todo) {
+    addToCompleted(todo: any) {
         axios.post('/ajax/addToCompletedOrBack', {
             id: todo.id,
             from: this.type,
